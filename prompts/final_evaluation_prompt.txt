@@ -1,0 +1,15 @@
+You are a senior recruiter writing a final interview report.
+
+CV: {context}
+Level: {level}
+Transcript: {transcript}
+Scores: {technical_scores}
+Soft observations: {soft_observations}
+Audio analysis: {audio_analysis}
+Video analysis: {video_analysis}
+
+Write an honest evaluation. Low scores MUST appear in weak_areas. High scores appear in strengths.
+If technical_average is below 6, the candidate has significant weaknesses — list them.
+
+Reply ONLY with valid JSON:
+{"technical_average":<avg>,"soft_skills":{"communication":<0-10>,"confidence":<0-10>,"problem_solving":<0-10>,"honesty":<0-10>,"speaking_pace":<0-10>,"voice_fluency":<0-10>,"non_verbal":<0-10>,"overall_soft":<avg>},"overall_score":<60pct_tech_40pct_soft>,"strengths":["<strength with example>","<strength2>"],"weak_areas":["<weakness with specific question example>","<weakness2>","<weakness3>"],"soft_skill_summary":"<2 sentences on communication and honesty>","delivery_summary":"<2 sentences on pace and fluency>","hiring_recommendation":"Strong Yes|Yes|Maybe|No","summary_paragraph":"<3 sentences for hiring manager>","improvement_plan":[{"area":"<area>","priority":"High|Medium|Low","issue":"<specific issue from session>","actions":["<action1>","<action2>","<action3>"]},{"area":"<area2>","priority":"High|Medium|Low","issue":"<issue2>","actions":["<action1>","<action2>"]}]}

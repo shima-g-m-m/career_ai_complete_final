@@ -1,0 +1,33 @@
+# LangChain
+langchain-core>=0.3.0
+langchain-ollama>=0.2.0
+langchain-community>=0.3.0
+langchain-text-splitters>=0.3.0
+
+# LangGraph
+langgraph>=0.2.0
+
+# PDF
+pdfminer.six>=20221105
+
+# Vector store
+faiss-cpu>=1.8.0
+
+# Web framework
+fastapi>=0.111.0
+uvicorn>=0.29.0
+python-multipart>=0.0.9
+
+# Audio processing
+ffmpeg-python>=0.2.0
+openai-whisper>=20231117
+librosa>=0.10.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Video analysis
+opencv-python-headless>=4.8.0
+
+# Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Interview System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0c0f;--sur:#141418;--sur2:#1c1c22;--bor:#2a2a35;--acc:#c8f060;--acc2:#60b8f0;--dan:#f06060;--war:#f0a060;--pur:#b060f0;--grn:#60f0a0;--txt:#e8e8f0;--mut:#6b6b80;--r:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:36px 20px 80px}
+header{text-align:center;margin-bottom:32px}
+header h1{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:-.02em;margin-bottom:6px}
+header h1 span{color:var(--acc);font-style:italic}
+header p{color:var(--mut);font-size:.88rem}
+.badge{display:inline-block;background:var(--sur2);border:1px solid var(--bor);border-radius:20px;padding:3px 12px;font-family:'DM Mono',monospace;font-size:.66rem;color:var(--acc2);letter-spacing:.1em;margin-top:8px}
+.card{width:100%;max-width:740px;background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:28px;margin-bottom:14px}
+.ct{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mut);margin-bottom:18px}
+.steps{display:flex;gap:8px;margin-bottom:22px;max-width:740px;width:100%}
+.step{flex:1;height:3px;background:var(--bor);border-radius:2px;transition:background .4s}
+.step.active{background:var(--acc)}.step.done{background:var(--acc2)}
+.up{border:2px dashed var(--bor);border-radius:var(--r);padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.up:hover,.up.drag{border-color:var(--acc);background:#141a0a}
+.up input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.up-icon{font-size:2rem;margin-bottom:8px}.up h3{font-size:.98rem;margin-bottom:4px}.up p{font-size:.8rem;color:var(--mut)}
+.mp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.mc{background:var(--sur2);border:2px solid var(--bor);border-radius:10px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s}
+.mc:hover{border-color:var(--acc2)}.mc.sel{border-color:var(--acc);background:#141a0a}
+.mc .ic{font-size:1.6rem;margin-bottom:6px}.mc .nm{font-weight:600;font-size:.88rem;margin-bottom:3px}.mc .ds{font-size:.72rem;color:var(--mut);line-height:1.4}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:all .2s}
+.bp{background:var(--acc);color:#0c0c0f}.bp:hover{background:#d4f570;transform:translateY(-1px)}
+.bs{background:var(--sur2);color:var(--txt);border:1px solid var(--bor)}.bs:hover{border-color:var(--acc);color:var(--acc)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.br{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+select,textarea,input[type=text]{width:100%;background:var(--sur2);border:1px solid var(--bor);border-radius:8px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:.88rem;padding:11px 13px;outline:none;transition:border-color .2s}
+select:focus,textarea:focus,input:focus{border-color:var(--acc)}
+textarea{resize:vertical;min-height:120px;line-height:1.6}
+label{display:block;font-size:.8rem;color:var(--mut);margin-bottom:6px}
+.field{margin-bottom:14px}
+.lp{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.7rem;font-weight:500}
+.lj{background:#0a0a1a;border:1px solid var(--acc2);color:var(--acc2)}
+.lm{background:#0a1a0a;border:1px solid var(--acc);color:var(--acc)}
+.ls{background:#1a0a1a;border:1px solid var(--pur);color:var(--pur)}
+/* interview */
+.qhdr{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.qnum{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--mut)}
+.fu-t{background:#1a1500;border:1px solid var(--war);border-radius:4px;padding:2px 8px;font-size:.66rem;color:var(--war);font-family:'DM Mono',monospace}
+.pb{height:4px;background:var(--bor);border-radius:2px;overflow:hidden;margin-bottom:18px}
+.pf{height:100%;background:var(--acc);border-radius:2px;transition:width .5s}
+.qb{background:var(--sur2);border-left:3px solid var(--acc);border-radius:0 var(--r) var(--r) 0;padding:18px 22px;margin-bottom:20px;font-size:1rem;line-height:1.65}
+.ql{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.15em;color:var(--acc);text-transform:uppercase;margin-bottom:8px}
+/* recording */
+.ra{text-align:center;padding:22px 0}
+.rb{width:80px;height:80px;border-radius:50%;border:3px solid var(--bor);background:var(--sur2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.8rem;transition:all .25s}
+.rb:hover{border-color:var(--acc);transform:scale(1.05)}
+.rb.rec{border-color:var(--dan);background:#2a0f0f;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #f0606040}50%{box-shadow:0 0 0 14px transparent}}
+.rs{margin-top:12px;font-size:.84rem;color:var(--mut);font-family:'DM Mono',monospace}
+.rs.act{color:var(--dan)}
+.wf{display:flex;align-items:center;justify-content:center;gap:3px;height:24px;margin:8px auto}
+.wf span{display:block;width:3px;border-radius:2px;background:var(--dan);height:5px}
+.wf.act span{animation:wave .8s ease-in-out infinite}
+.wf.act span:nth-child(2){animation-delay:.1s}.wf.act span:nth-child(3){animation-delay:.2s}
+.wf.act span:nth-child(4){animation-delay:.15s}.wf.act span:nth-child(5){animation-delay:.05s}
+@keyframes wave{0%,100%{height:4px}50%{height:20px}}
+#ap{margin-top:12px;width:100%;display:none}
+#vp{width:100%;max-width:400px;border-radius:10px;background:#000;display:none;margin:0 auto 12px;border:1px solid var(--bor)}
+#vp.act{display:block}
+/* answer confirmed box */
+.confirmed{background:var(--sur2);border:1px solid var(--grn);border-radius:10px;padding:18px 20px;margin-top:14px;display:flex;align-items:flex-start;gap:14px}
+.confirmed-icon{font-size:1.4rem;flex-shrink:0}
+.confirmed-body{}
+.confirmed-label{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--grn);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.confirmed-tr{font-size:.86rem;color:var(--mut);line-height:1.5;font-style:italic}
+.confirmed-media{margin-top:10px}
+.confirmed-media audio,.confirmed-media video{width:100%;border-radius:8px}
+/* final */
+.fw{width:100%;max-width:740px}
+.eh{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:36px 28px 28px;text-align:center;margin-bottom:12px}
+.or{width:120px;height:120px;border-radius:50%;border:7px solid var(--acc);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 18px;font-family:'DM Serif Display',serif}
+.or .num{font-size:2.4rem;line-height:1;color:var(--acc)}.or .lbl{font-size:.62rem;color:var(--mut);font-family:'DM Mono',monospace;margin-top:3px}
+.rec2{display:inline-block;padding:7px 18px;border-radius:20px;font-family:'DM Mono',monospace;font-size:.78rem;font-weight:500;margin-top:10px}
+.rsy{background:#0a1a0a;border:1px solid var(--acc);color:var(--acc)}.ry{background:#0a120a;border:1px solid #80d060;color:#80d060}
+.rm2{background:#1a1500;border:1px solid var(--war);color:var(--war)}.rn{background:#1a0808;border:1px solid var(--dan);color:var(--dan)}
+.sg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.sp{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:18px}
+.sp h3{font-size:.68rem;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.tp h3{color:var(--acc2)}.sop h3{color:var(--pur)}.dep h3{color:var(--grn)}
+.sb{margin-bottom:10px}.sb-l{display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:3px}
+.sb-l span:last-child{color:var(--acc2);font-family:'DM Mono',monospace}
+.sb-t{height:5px;background:var(--bor);border-radius:3px;overflow:hidden}
+.sb-f{height:100%;border-radius:3px;transition:width 1.2s ease}
+.es{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:22px;margin-bottom:12px}
+.es h3{font-size:.72rem;font-family:'DM Mono',monospace;color:var(--mut);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.sti{padding:9px 12px;background:var(--sur2);border-radius:6px;margin-bottom:5px;font-size:.86rem;border-left:2px solid var(--acc)}
+.sti::before{content:"✓ ";color:var(--acc)}
+.wki{padding:9px 12px;background:var(--sur2);border-radius:6px;margin-bottom:5px;font-size:.86rem;color:var(--mut);border-left:2px solid var(--dan)}
+.wki::before{content:"⚠ ";color:var(--dan)}
+.pb2{line-height:1.7;font-size:.9rem;color:var(--txt);margin-bottom:10px}
+.ssum{line-height:1.7;font-size:.84rem;color:var(--mut);font-style:italic;border-left:3px solid var(--pur);padding-left:12px;margin-bottom:8px}
+.dsum{line-height:1.7;font-size:.84rem;color:var(--mut);font-style:italic;border-left:3px solid var(--grn);padding-left:12px}
+/* improvement plan */
+.ic{background:var(--sur2);border:1px solid var(--bor);border-radius:10px;padding:16px;margin-bottom:9px}
+.ih{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ia{font-weight:600;font-size:.88rem}
+.pri{font-family:'DM Mono',monospace;font-size:.63rem;padding:2px 7px;border-radius:4px;text-transform:uppercase}
+.pH{background:#2a0808;border:1px solid var(--dan);color:var(--dan)}.pM{background:#1a1200;border:1px solid var(--war);color:var(--war)}.pL{background:#0a140a;border:1px solid var(--acc);color:var(--acc)}
+.iiss{font-size:.82rem;color:var(--mut);margin-bottom:8px;font-style:italic}
+.iac{list-style:none}.iac li{padding:6px 11px;background:var(--sur);border-radius:6px;margin-bottom:4px;font-size:.82rem;border-left:2px solid var(--acc2)}
+.iac li::before{content:"▶ ";color:var(--acc2);font-size:.68rem}
+/* Q breakdown */
+.qi{background:var(--sur2);border:1px solid var(--bor);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.qi-hdr{display:flex;align-items:center;gap:12px;padding:16px;cursor:pointer;user-select:none;transition:background .2s}
+.qi-hdr:hover{background:var(--sur)}
+.qi-sc{width:38px;height:38px;border-radius:50%;border:3px solid var(--bor);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0}
+.qi-sc.high{border-color:var(--acc);color:var(--acc)}.qi-sc.mid{border-color:var(--acc2);color:var(--acc2)}.qi-sc.low{border-color:var(--dan);color:var(--dan)}
+.qi-info{flex:1}.qi-q{font-size:.88rem;line-height:1.5;font-weight:500}
+.qi-meta{font-size:.72rem;color:var(--mut);font-family:'DM Mono',monospace;margin-top:2px}
+.qi-arrow{color:var(--mut);font-size:.8rem;transition:transform .3s}
+.qi-body{display:none;padding:0 16px 16px;border-top:1px solid var(--bor)}
+.qi-body.open{display:block}
+.qi-section{margin-top:12px}
+.qi-section-label{font-family:'DM Mono',monospace;font-size:.63rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);margin-bottom:6px}
+.qi-ans{font-size:.85rem;color:var(--mut);line-height:1.5;background:var(--sur);border-radius:6px;padding:10px 12px}
+.qi-fb{font-size:.86rem;line-height:1.6;color:var(--txt);margin-bottom:10px}
+.qi-imps{list-style:none}
+.qi-imps li{padding:6px 10px;background:var(--sur);border-radius:5px;margin-bottom:4px;font-size:.82rem;color:var(--mut);border-left:2px solid var(--acc2)}
+.qi-imps li::before{content:"→ ";color:var(--acc2)}
+.dd2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.dd2-item{background:var(--sur);border-radius:6px;padding:10px 12px}
+.dd2-lbl{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--mut);text-transform:uppercase;margin-bottom:3px}
+.dd2-note{font-size:.82rem;line-height:1.4;color:var(--txt)}
+.del-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.del-panel{background:var(--sur);border-radius:8px;padding:12px}
+.del-panel h5{font-family:'DM Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.del-panel.au h5{color:var(--grn)}.del-panel.vi h5{color:var(--pur)}
+.mb2{margin-bottom:6px}.mb2-l{display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:2px}
+.mb2-l span:last-child{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--acc2)}
+.mb2-t{height:3px;background:var(--bor);border-radius:2px;overflow:hidden}
+.mb2-f{height:100%;border-radius:2px;transition:width 1s ease}
+.fh{background:var(--acc)}.fm{background:var(--acc2)}.fl{background:var(--dan)}
+.del-obs{font-size:.74rem;color:var(--mut);margin-top:6px;font-style:italic;line-height:1.4}
+.ttags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;justify-content:center}
+.ttag{background:var(--sur2);border:1px solid var(--bor);border-radius:20px;padding:3px 10px;font-size:.7rem;color:var(--acc2);font-family:'DM Mono',monospace}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--sur2);border:1px solid var(--bor);border-radius:8px;padding:11px 18px;font-size:.86rem;opacity:0;transition:all .3s;pointer-events:none;z-index:100;min-width:200px;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.err{border-color:var(--dan);color:var(--dan)}#toast.ok{border-color:var(--acc);color:var(--acc)}
+.spin{display:inline-block;width:15px;height:15px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+@media(max-width:580px){.sg3,.del-grid,.dd2,.mp{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>AI <span>Interview</span> System</h1>
+  <p>Fully local · Ollama + Whisper · LangGraph adaptive flow</p>
+  <div class="badge">⚡ Auto-level · Voice Analysis · Vision Analysis</div>
+</header>
+<div class="steps" id="steps" style="max-width:740px;width:100%">
+  <div class="step active" id="step-1"></div>
+  <div class="step" id="step-2"></div>
+  <div class="step" id="step-3"></div>
+</div>
+
+<!-- SETUP -->
+<div class="card" id="s-setup">
+  <div class="ct">Step 1 — Setup</div>
+  <div class="up" id="dz"><input type="file" id="cv-file" accept=".pdf">
+    <div class="up-icon">📄</div><h3 id="up-lbl">Drop your CV or click to browse</h3><p>PDF only · System auto-detects your level</p></div>
+  <div class="field" style="margin-top:14px">
+    <label>Job Keywords <span style="color:var(--mut);font-weight:300">(optional — improves level detection)</span></label>
+    <input type="text" id="jd" placeholder="e.g. senior Python developer, FastAPI, machine learning...">
+  </div>
+  <div class="field">
+    <label>Answer Mode — fixed for the whole session</label>
+    <div class="mp" id="mp">
+      <div class="mc sel" data-mode="text"><div class="ic">✏️</div><div class="nm">Type</div><div class="ds">Type your answers. Fast and simple.</div></div>
+      <div class="mc" data-mode="audio"><div class="ic">🎙️</div><div class="nm">Speak</div><div class="ds">Voice answers. Analysed for pace, fluency & confidence.</div></div>
+      <div class="mc" data-mode="video"><div class="ic">📹</div><div class="nm">Video</div><div class="ds">Camera + mic. Full voice & non-verbal analysis.</div></div>
+    </div>
+  </div>
+  <div class="br"><button class="btn bp" id="btn-start">Start Interview</button></div>
+</div>
+
+<!-- INTERVIEW -->
+<div class="card hidden" id="s-int">
+  <div class="ct">Step 2 — Live Interview
+    <span id="mode-ind" style="margin-left:6px;font-size:.72rem;color:var(--acc2)"></span>
+    <span id="lvl-ind" style="margin-left:4px"></span>
+  </div>
+  <div class="qhdr">
+    <span class="qnum" id="qnum">Question 1</span>
+    <span id="fu-t" class="fu-t hidden">⚡ Follow-up</span>
+  </div>
+  <div class="pb"><div class="pf" id="pf" style="width:5%"></div></div>
+  <div class="qb"><div class="ql">Interviewer</div><div id="qtxt">Loading...</div></div>
+
+  <!-- TEXT -->
+  <div id="in-text">
+    <div class="field"><label>Your Answer</label><textarea id="ta" placeholder="Type your answer here..."></textarea></div>
+    <button class="btn bp" id="btn-txt">Submit Answer</button>
+  </div>
+  <!-- AUDIO -->
+  <div id="in-audio" class="hidden">
+    <div class="ra">
+      <button class="rb" id="rbtn">🎙️</button>
+      <div class="wf" id="wf"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="rs" id="rs">Click to start recording</div>
+      <audio id="ap" controls></audio>
+    </div>
+    <button class="btn bp hidden" id="btn-aud">Submit Recording</button>
+  </div>
+  <!-- VIDEO -->
+  <div id="in-video" class="hidden">
+    <div style="text-align:center">
+      <video id="vp" autoplay muted playsinline></video>
+      <div class="ra">
+        <button class="rb" id="vrbtn">📹</button>
+        <div class="wf" id="vwf"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="rs" id="vrs">Click to start recording</div>
+        <video id="vpb" controls style="display:none;width:100%;border-radius:10px;margin-top:10px"></video>
+      </div>
+    </div>
+    <button class="btn bp hidden" id="btn-vid">Submit Video</button>
+  </div>
+
+  <!-- Answer confirmed — shown after submit, before next question -->
+  <div id="confirmed-box" class="hidden">
+    <div class="confirmed">
+      <div class="confirmed-icon">✅</div>
+      <div class="confirmed-body">
+        <div class="confirmed-label">Answer received</div>
+        <div class="confirmed-tr" id="conf-tr"></div>
+        <div class="confirmed-media" id="conf-media"></div>
+      </div>
+    </div>
+    <div class="br">
+      <button class="btn bp" id="btn-next">Next Question →</button>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL EVALUATION -->
+<div id="s-final" class="hidden fw">
+  <div class="eh card">
+    <div class="ct">Interview Complete — Full Evaluation</div>
+    <div class="or" id="or"><span class="num">—</span><span class="lbl">OVERALL / 10</span></div>
+    <div id="rec-badge"></div>
+    <p id="sum-p" class="pb2" style="margin-top:16px;max-width:580px;margin-left:auto;margin-right:auto"></p>
+    <div id="ttags" class="ttags"></div>
+    <div id="er" style="margin-top:10px;font-size:.74rem;color:var(--mut);font-family:'DM Mono',monospace"></div>
+  </div>
+
+  <div class="sg3">
+    <div class="sp tp"><h3>📊 Technical</h3><div id="td"></div></div>
+    <div class="sp sop"><h3>🧠 Soft Skills</h3><div id="sd"></div></div>
+    <div class="sp dep"><h3>🎙️ Delivery</h3><div id="deld"></div></div>
+  </div>
+
+  <div class="es"><h3>💪 Strengths</h3><div id="stl"></div></div>
+  <div class="es"><h3>⚠ Weak Areas</h3><div id="wkl"></div></div>
+  <div class="es"><h3>💬 Communication & Delivery</h3><p class="ssum" id="ssum"></p><p class="dsum" id="dsum"></p></div>
+  <div class="es"><h3>🚀 Personalised Improvement Plan</h3>
+    <p style="font-size:.82rem;color:var(--mut);margin-bottom:14px">Specific actions based on your session performance.</p>
+    <div id="iplan"></div>
+  </div>
+  <div class="es"><h3>📋 Question-by-Question Breakdown</h3>
+    <p style="font-size:.82rem;color:var(--mut);margin-bottom:14px">Click any question to see your score, why you got it, and what to improve.</p>
+    <div id="qbreak"></div>
+  </div>
+  <div style="margin-top:8px"><button class="btn bs" onclick="location.reload()">Start New Interview</button></div>
+</div>
+
+<div id="toast"></div>
+<script>
+const S={uid:null,mode:'text',qi:0,cq:'',ab:null,vb:null,mr:null,stream:null};
+
+function toast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='show '+(t==='error'?'err':t==='success'?'ok':'');setTimeout(()=>el.className='',3200)}
+function setLoad(b,on,l='Submit'){b.disabled=on;b.innerHTML=on?`<span class="spin"></span> Processing...`:l}
+function setStep(n){[1,2,3].forEach(i=>document.getElementById(`step-${i}`).className='step'+(i<n?' done':i===n?' active':''))}
+function sc(s){return s>=7?'high':s>=4?'mid':'low'}
+function fc(s){return s>=7?'fh':s>=4?'fm':'fl'}
+function sBar(l,s){const v=+Math.min(Math.max(s||0,0),10).toFixed(1),p=(v/10*100).toFixed(0);return`<div class="sb"><div class="sb-l"><span>${l}</span><span>${v}/10</span></div><div class="sb-t"><div class="sb-f ${fc(v)}" style="width:0%" data-pct="${p}"></div></div></div>`}
+function mBar2(l,s){const v=+Math.min(Math.max(s||0,0),10).toFixed(1),p=(v/10*100).toFixed(0);return`<div class="mb2"><div class="mb2-l"><span>${l}</span><span>${v}</span></div><div class="mb2-t"><div class="mb2-f ${fc(v)}" style="width:0%" data-pct="${p}"></div></div></div>`}
+function anim(){setTimeout(()=>document.querySelectorAll('[data-pct]').forEach(el=>el.style.width=el.dataset.pct+'%'),100)}
+
+// Mode picker
+document.querySelectorAll('.mc').forEach(c=>{c.addEventListener('click',()=>{document.querySelectorAll('.mc').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');S.mode=c.dataset.mode})});
+
+// Upload
+document.getElementById('cv-file').addEventListener('change',e=>{const f=e.target.files[0];if(f)document.getElementById('up-lbl').textContent=`✅ ${f.name}`});
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){document.getElementById('cv-file').files=e.dataTransfer.files;document.getElementById('up-lbl').textContent=`✅ ${f.name}`}});
+
+document.getElementById('btn-start').addEventListener('click',async()=>{
+  const file=document.getElementById('cv-file').files[0];
+  if(!file){toast('Please select a PDF first','error');return;}
+  const btn=document.getElementById('btn-start');setLoad(btn,true);
+  const fd=new FormData();fd.append('file',file);fd.append('interview_mode',S.mode);fd.append('job_description',document.getElementById('jd').value.trim());
+  try{
+    const r=await fetch('/start',{method:'POST',body:fd});const d=await r.json();
+    if(!r.ok) throw new Error(d.detail||'Failed');
+    S.uid=d.user_id;S.qi=0;S.cq=d.question;
+    document.getElementById('s-setup').classList.add('hidden');
+    document.getElementById('s-int').classList.remove('hidden');
+    setStep(2);
+    ['text','audio','video'].forEach(m=>document.getElementById('in-'+m).classList.toggle('hidden',m!==S.mode));
+    document.getElementById('mode-ind').textContent=S.mode==='text'?'✏️ Text':S.mode==='audio'?'🎙️ Voice':'📹 Video';
+    const lvl=d.level||'mid';
+    const lc={junior:'lj',mid:'lm',senior:'ls'}[lvl]||'lm';
+    document.getElementById('lvl-ind').innerHTML=`<span class="lp ${lc}">🎯 ${lvl.toUpperCase()}</span>`;
+    toast(`Level detected: ${lvl.toUpperCase()} — ${d.level_reasoning||''}`.slice(0,80),'success');
+    showQ(d.question,false,1);
+    if(S.mode==='video') initVid();
+  }catch(e){toast(e.message,'error');setLoad(btn,false,'Start Interview');}
+});
+
+function showQ(q,isFU,n){
+  document.getElementById('qtxt').textContent=q;
+  document.getElementById('confirmed-box').classList.add('hidden');
+  document.getElementById('qnum').textContent=`Question ${n}`;
+  document.getElementById('pf').style.width=Math.min(5+n*8,92)+'%';
+  const ft=document.getElementById('fu-t');isFU?ft.classList.remove('hidden'):ft.classList.add('hidden');
+  // Reset inputs
+  if(S.mode==='text') document.getElementById('ta').value='';
+  if(S.mode==='audio'){
+    const ap=document.getElementById('ap');ap.removeAttribute('src');ap.style.display='none';
+    document.getElementById('btn-aud').classList.add('hidden');
+    document.getElementById('rs').textContent='Click to start recording';document.getElementById('rs').classList.remove('act');
+    document.getElementById('rbtn').textContent='🎙️';document.getElementById('rbtn').classList.remove('rec');
+    document.getElementById('wf').classList.remove('act');S.ab=null;
+  }
+  if(S.mode==='video'){
+    document.getElementById('vpb').style.display='none';document.getElementById('vpb').src='';
+    document.getElementById('btn-vid').classList.add('hidden');
+    document.getElementById('vrs').textContent='Click to start recording';document.getElementById('vrs').classList.remove('act');
+    document.getElementById('vrbtn').textContent='📹';document.getElementById('vrbtn').classList.remove('rec');
+    document.getElementById('vwf').classList.remove('act');S.vb=null;
+  }
+  // Show input, hide confirmed
+  document.getElementById('in-'+S.mode).classList.remove('hidden');
+}
+
+async function postData(fd,ep){fd.append('user_id',S.uid);const r=await fetch(ep,{method:'POST',body:fd});const d=await r.json();if(!r.ok) throw new Error(d.detail||'Failed');return d}
+
+function showConfirmed(d){
+  // Hide input, show confirmed
+  document.getElementById('in-'+S.mode).classList.add('hidden');
+  const box=document.getElementById('confirmed-box');
+  const tr=document.getElementById('conf-tr');
+  const cm=document.getElementById('conf-media');
+  cm.innerHTML='';
+  if(d.transcription){
+    tr.textContent=`"${d.transcription}"`;
+    if(S.mode==='audio'&&S.ab){const au=document.createElement('audio');au.controls=true;au.src=URL.createObjectURL(S.ab);cm.appendChild(au);}
+    if(S.mode==='video'&&S.vb){const vid=document.createElement('video');vid.controls=true;vid.style.cssText='width:100%;border-radius:8px';vid.src=URL.createObjectURL(S.vb);cm.appendChild(vid);}
+  }else if(S.mode==='text'){
+    tr.textContent=document.getElementById('ta').value.trim().slice(0,200)+(document.getElementById('ta').value.length>200?'...':'');
+  }else{
+    tr.textContent='Answer submitted successfully.';
+  }
+  box.classList.remove('hidden');
+
+  if(d.interview_complete){
+    document.getElementById('btn-next').textContent='See Full Evaluation →';
+    document.getElementById('btn-next').onclick=()=>showFinal(d);
+  }else{
+    document.getElementById('btn-next').textContent='Next Question →';
+    document.getElementById('btn-next').onclick=()=>{
+      S.cq=d.next_question;
+      showQ(d.next_question,d.next_action==='followup',d.question_number||S.qi+1);
+      window.scrollTo({top:0,behavior:'smooth'});
+      if(S.mode==='video'&&!document.getElementById('vp').srcObject) initVid();
+    };
+  }
+  S.qi++;
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// TEXT
+document.getElementById('btn-txt').addEventListener('click',async()=>{
+  const a=document.getElementById('ta').value.trim();if(!a){toast('Please type your answer','error');return;}
+  const b=document.getElementById('btn-txt');setLoad(b,true);
+  try{const fd=new FormData();fd.append('answer',a);showConfirmed(await postData(fd,'/answer/text'));}catch(e){toast(e.message,'error');}
+  setLoad(b,false,'Submit Answer');
+});
+
+// AUDIO
+let ac=[];
+document.getElementById('rbtn').addEventListener('click',async()=>{
+  if(S.mr&&S.mr.state==='recording'){
+    S.mr.stop();S.stream.getTracks().forEach(t=>t.stop());
+    document.getElementById('rbtn').textContent='🎙️';document.getElementById('rbtn').classList.remove('rec');
+    document.getElementById('wf').classList.remove('act');
+    document.getElementById('rs').textContent='Processing...';document.getElementById('rs').classList.remove('act');
+  }else{
+    try{S.stream=await navigator.mediaDevices.getUserMedia({audio:true});}catch(e){toast('Mic denied','error');return;}
+    ac=[];S.mr=new MediaRecorder(S.stream);
+    S.mr.ondataavailable=e=>ac.push(e.data);
+    S.mr.onstop=()=>{S.ab=new Blob(ac,{type:'audio/webm'});const p=document.getElementById('ap');p.src=URL.createObjectURL(S.ab);p.style.display='block';document.getElementById('rs').textContent='✅ Review and submit';document.getElementById('btn-aud').classList.remove('hidden');};
+    S.mr.start();document.getElementById('rbtn').textContent='⏹️';document.getElementById('rbtn').classList.add('rec');document.getElementById('wf').classList.add('act');document.getElementById('rs').textContent='● Recording... click to stop';document.getElementById('rs').classList.add('act');
+  }
+});
+document.getElementById('btn-aud').addEventListener('click',async()=>{
+  if(!S.ab){toast('No recording','error');return;}
+  const b=document.getElementById('btn-aud');setLoad(b,true);
+  try{const fd=new FormData();fd.append('file',S.ab,'answer.webm');showConfirmed(await postData(fd,'/answer/audio'));}catch(e){toast(e.message,'error');}
+  setLoad(b,false,'Submit Recording');
+});
+
+// VIDEO
+let vc=[];
+async function initVid(){
+  const pv=document.getElementById('vp');
+  try{if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}
+    const s=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    S.stream=s;pv.srcObject=s;pv.classList.add('act');await pv.play();
+  }catch(e){toast('Camera denied: '+e.message,'error');}
+}
+document.getElementById('vrbtn').addEventListener('click',async()=>{
+  if(S.mr&&S.mr.state==='recording'){
+    S.mr.stop();document.getElementById('vrbtn').textContent='📹';document.getElementById('vrbtn').classList.remove('rec');document.getElementById('vwf').classList.remove('act');document.getElementById('vrs').textContent='Processing...';document.getElementById('vrs').classList.remove('act');
+  }else{
+    await initVid();const s=document.getElementById('vp').srcObject;if(!s) return;
+    vc=[];S.mr=new MediaRecorder(s);S.mr.ondataavailable=e=>vc.push(e.data);
+    S.mr.onstop=()=>{S.vb=new Blob(vc,{type:'video/webm'});const pb=document.getElementById('vpb');pb.src=URL.createObjectURL(S.vb);pb.style.display='block';if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}document.getElementById('vp').classList.remove('act');document.getElementById('vrs').textContent='✅ Review and submit';document.getElementById('btn-vid').classList.remove('hidden');};
+    S.mr.start();document.getElementById('vrbtn').textContent='⏹️';document.getElementById('vrbtn').classList.add('rec');document.getElementById('vwf').classList.add('act');document.getElementById('vrs').textContent='● Recording... click to stop';document.getElementById('vrs').classList.add('act');
+  }
+});
+document.getElementById('btn-vid').addEventListener('click',async()=>{
+  if(!S.vb){toast('No video','error');return;}
+  const b=document.getElementById('btn-vid');setLoad(b,true);
+  try{const fd=new FormData();fd.append('file',S.vb,'answer.webm');showConfirmed(await postData(fd,'/answer/video'));}catch(e){toast(e.message,'error');}
+  setLoad(b,false,'Submit Video');
+});
+
+// Final evaluation
+function showFinal(d){
+  document.getElementById('s-int').classList.add('hidden');
+  document.getElementById('s-final').classList.remove('hidden');
+  setStep(3);window.scrollTo({top:0,behavior:'smooth'});
+  const ev=d.final_evaluation;if(!ev){document.getElementById('sum-p').textContent='Interview complete.';return;}
+  const ov=+(ev.overall_score||0).toFixed(1);
+  const or2=document.getElementById('or');const nm=or2.querySelector('.num');nm.textContent=ov;
+  const col=ov>=7?'var(--acc)':ov>=5?'var(--acc2)':'var(--dan)';or2.style.borderColor=col;nm.style.color=col;
+  const rec=ev.hiring_recommendation||'Maybe';
+  const rm={'Strong Yes':['rsy','🌟'],'Yes':['ry','✅'],'Maybe':['rm2','🤔'],'No':['rn','❌']};
+  const[cl,em]=rm[rec]||['rm2','🤔'];
+  document.getElementById('rec-badge').innerHTML=`<div class="rec2 ${cl}">${em} ${rec}</div>`;
+  document.getElementById('sum-p').textContent=ev.summary_paragraph||'';
+  const topics=d.topics_covered||[];
+  if(topics.length) document.getElementById('ttags').innerHTML=topics.map(t=>`<span class="ttag">${t}</span>`).join('');
+  if(d.end_reason) document.getElementById('er').textContent='📋 '+d.end_reason;
+  document.getElementById('td').innerHTML=sBar('Technical Average',ev.technical_average||0)+`<div style="margin-top:8px;font-size:.72rem;color:var(--mut)">${d.questions_asked||0} questions answered</div>`;
+  const soft=ev.soft_skills||{};
+  document.getElementById('sd').innerHTML=sBar('Communication',soft.communication||5)+sBar('Confidence',soft.confidence||5)+sBar('Problem Solving',soft.problem_solving||5)+sBar('Honesty',soft.honesty||5);
+  document.getElementById('deld').innerHTML=sBar('Speaking Pace',soft.speaking_pace||5)+sBar('Voice Fluency',soft.voice_fluency||5)+sBar('Non-Verbal',soft.non_verbal||5)+`<div style="margin-top:7px;border-top:1px solid var(--bor);padding-top:7px">${sBar('Overall Soft',soft.overall_soft||5)}</div>`;
+  document.getElementById('stl').innerHTML=(ev.strengths||[]).map(s=>`<div class="sti">${s}</div>`).join('')||'<div style="color:var(--mut)">None recorded.</div>';
+  document.getElementById('wkl').innerHTML=(ev.weak_areas||[]).map(w=>`<div class="wki">${w}</div>`).join('')||'<div style="color:var(--mut)">None identified.</div>';
+  document.getElementById('ssum').textContent=ev.soft_skill_summary||'';
+  document.getElementById('dsum').textContent=ev.delivery_summary||'';
+  // Improvement plan
+  const plan=ev.improvement_plan||[];
+  document.getElementById('iplan').innerHTML=plan.length?plan.map(it=>`
+    <div class="ic"><div class="ih"><span class="ia">${it.area||'General'}</span><span class="pri p${(it.priority||'M')[0]}">${it.priority||'Medium'}</span></div>
+    <p class="iiss">${it.issue||''}</p>
+    <ul class="iac">${(it.actions||[]).map(a=>`<li>${a}</li>`).join('')}</ul></div>`).join(''):'<div style="color:var(--mut)">No plan generated.</div>';
+  // Q breakdown — each question expandable
+  const turns=d.all_turns||[];
+  document.getElementById('qbreak').innerHTML=turns.map((t,i)=>{
+    const hasAudio=t.audio_pace_score!=null;const hasVideo=t.video_score!=null;
+    const deliveryHtml=hasAudio||hasVideo?`
+      <div class="qi-section"><div class="qi-section-label">Delivery Analysis</div>
+        <div class="del-grid">
+          <div class="del-panel au"><h5>🎙️ Voice</h5>
+            ${hasAudio?mBar2('Pace',t.audio_pace_score)+mBar2('Fluency',t.audio_fluency_score)+mBar2('Confidence',t.audio_confidence_score):'<div style="color:var(--mut);font-size:.74rem">N/A</div>'}
+            <div class="del-obs">${(t.audio_observations||[]).slice(0,2).join(' ')}</div>
+          </div>
+          <div class="del-panel vi"><h5>📹 Non-Verbal</h5>
+            ${hasVideo?mBar2('Eye Contact',t.video_eye_contact)+mBar2('Expression',t.video_expression)+mBar2('Posture',t.video_posture):'<div style="color:var(--mut);font-size:.74rem">N/A</div>'}
+            <div class="del-obs">${(t.video_observations||[]).slice(0,1).join(' ')}</div>
+          </div>
+        </div>
+      </div>`:'';
+    const ansHtml=t.transcription
+      ?`<div class="qi-section"><div class="qi-section-label">Transcription</div><div class="qi-ans">${t.transcription}</div></div>`
+      :`<div class="qi-section"><div class="qi-section-label">Answer</div><div class="qi-ans">${t.answer||''}</div></div>`;
+    return`<div class="qi">
+      <div class="qi-hdr" onclick="toggleQ(this)">
+        <div class="qi-sc ${sc(t.score||0)}">${t.score??'—'}</div>
+        <div class="qi-info">
+          <div class="qi-q">Q${t.turn}: ${t.question}</div>
+          <div class="qi-meta">${t.is_followup?'⚡ Follow-up · ':''} Score: ${t.score??'—'}/10 · ${t.mode} mode</div>
+        </div>
+        <span class="qi-arrow">▼</span>
+      </div>
+      <div class="qi-body">
+        ${ansHtml}
+        <div class="qi-section">
+          <div class="qi-section-label">Feedback & Why this score</div>
+          <p class="qi-fb">${t.feedback||'No feedback recorded.'}</p>
+        </div>
+        ${(t.correctness_note||t.clarity_note)?`
+        <div class="qi-section">
+          <div class="qi-section-label">Dimension Breakdown</div>
+          <div class="dd2">
+            <div class="dd2-item"><div class="dd2-lbl">Correctness</div><div class="dd2-note">${t.correctness_note||'—'}</div></div>
+            <div class="dd2-item"><div class="dd2-lbl">Clarity</div><div class="dd2-note">${t.clarity_note||'—'}</div></div>
+            <div class="dd2-item"><div class="dd2-lbl">Depth</div><div class="dd2-note">${t.depth_note||'—'}</div></div>
+            <div class="dd2-item"><div class="dd2-lbl">Confidence</div><div class="dd2-note">${t.confidence_note||'—'}</div></div>
+          </div>
+        </div>`:''}
+        ${(t.improvements||[]).length?`
+        <div class="qi-section">
+          <div class="qi-section-label">What to improve</div>
+          <ul class="qi-imps">${t.improvements.map(imp=>`<li>${imp}</li>`).join('')}</ul>
+        </div>`:''}
+        ${deliveryHtml}
+      </div>
+    </div>`;
+  }).join('');
+  anim();
+}
+
+function toggleQ(hdr){
+  const body=hdr.nextElementSibling;const arrow=hdr.querySelector('.qi-arrow');
+  const open=body.classList.toggle('open');arrow.textContent=open?'▲':'▼';
+  if(open){anim();hdr.scrollIntoView({behavior:'smooth',block:'nearest'});}
+}
+</script>
+</body>
+</html>
